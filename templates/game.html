@@ -1,0 +1,234 @@
+{% extends "layout.html" %} {% block content %}
+<div id="gameover">
+	<div id="header">
+		<h1>YOU LOST!</h1>
+		<p>You definitely meant to do that.</p>
+	</div>
+	<div id="final_scores">
+		<div>Score: <span id="f_scr">0K</span> / <span id="f_maxscr">0K</span></div>
+		<div><span id="best_title">Best Score:</span> <span id="best"></span></div>
+	</div>
+	<div id="buttons">
+		<span>
+			<button id="refresh">Again</button>
+			<a href="{{ url_for('index') }}">Modes</a>
+		</span>
+		<button id="share-btn">Share this challenge</button>
+	</div>
+</div>
+
+<div id="shared_content">
+	<div id="header">
+		<h1>Your friend got <span style="color: #ff4654" id="score_string">{{score_string}}</span> in <span style="color: #ff4654">{{ mode.capitalize() }}</span> mode!</h1>
+		<p>Can you beat this challenge?</p>
+	</div>
+	<button onclick="close_shared_content()">Try this challenge!</button>
+</div>
+
+<a id="choose_mode" href="{{ url_for('index') }}"> Choose Mode </a>
+<a id="title" href="{{ url_for('index') }}">Most Kill Team - {{ mode.capitalize() }}</a>
+<p id="subtitle">Choose players based on <strong>{{ mode }}</strong> stats</p>
+<div id="chose">
+	<div id="score">Score: <span id="scr">0K</span> / <span id="maxscr">0K</span></div>
+	<div id="player">
+		<div id="img" class="playeranim"></div>
+		<p id="name">???</p>
+	</div>
+	<div id="options">
+		<button id="1" onclick="multiply(event, this, 1)" disabled>1x: <span></span></button>
+		<button id="2" onclick="multiply(event, this, 1)" disabled>1x: <span></span></button>
+		<button id="3" onclick="multiply(event, this, 2)" disabled>2x: <span></span></button>
+		<button id="4" onclick="multiply(event, this, 2)" disabled>2x: <span></span></button>
+		<button id="5" onclick="multiply(event, this, 3)" disabled>3x: <span></span></button>
+	</div>
+</div>
+<script>
+	var imgHTML = document.getElementById("img");
+	var nameHTML = document.getElementById("name");
+	var buttons = document.querySelectorAll("#options button");
+	var score = document.getElementById("scr");
+	var max_score = document.getElementById("maxscr");
+	var f_score = document.getElementById("f_scr");
+	var f_max_score = document.getElementById("f_maxscr");
+	var best_obj = document.getElementById("best");
+	var best_title = document.getElementById("best_title");
+	var buttons_target = document.querySelectorAll(".target");
+	var imgPlayer;
+	var namePlayer;
+	var killsPlayer = 0;
+	var total = 0;
+	var max = 0;
+	var numberofplayers = 0;
+	var fetchedPlayers = new Set();
+	var buttonslist = [];
+
+	let shared_score = "{{score_string}}";
+
+	if (shared_score != "None") {
+		document.getElementById("shared_content").style.display = "flex";
+		document.getElementById("score_string").textContent = shared_score.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	}
+
+	var lost_phrases = ["So close. Painfully close.", "Unlucky… or was it?", "Next time, less confidence.", "One more run. Trust.", "That felt smart for 2 seconds."];
+	var win_phrases = ["Absolute cinema.", "Calculated. Probably", "You definitely meant to do that.", "Youre getting nerfed next patch.", "You cooked."];
+
+	function random_phrase(phrase) {
+		let i = Math.floor(Math.random() * phrase.length);
+		return phrase[i];
+	}
+
+	if (localStorage.getItem("best_scr-{{mode}}")) {
+		var best_scr = localStorage.getItem("best_scr-{{mode}}");
+	} else {
+		var best_scr = 0;
+	}
+
+	var mode = "{{ mode }}";
+
+	if (mode == "career") {
+		max = 65000;
+	} else if (mode == "masters") {
+		max = 7500;
+	} else if (mode == "champions") {
+		max = 6500;
+	}
+
+	max_score.innerText = `${max.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}K`;
+	f_max_score.innerText = `${max.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}K`;
+
+	function fetchplayer() {
+		return fetch(`/get_player/${mode}`)
+			.then((response) => response.json())
+			.then((player) => {
+				if (fetchedPlayers.has(player["Player"])) {
+					return fetchplayer();
+				}
+
+				imgPlayer = `url(https:${player["Img"]})`;
+				namePlayer = player["Player"];
+				killsPlayer = player["Kills"];
+
+				fetchedPlayers.add(player["Player"]);
+
+				return player;
+			})
+			.catch((error) => console.error("Error fetching the player:", error));
+	}
+
+	imgHTML.addEventListener("animationend", function () {
+		fetchplayer().then(() => {
+			numberofplayers += 1;
+			imgHTML.style.backgroundImage = imgPlayer;
+			nameHTML.innerHTML = namePlayer;
+			buttons.forEach((element) => {
+				element.disabled = false;
+			});
+		});
+	});
+
+	function multiply(event, button, n) {
+		if (!buttonslist.includes(button.getAttribute("id"))) {
+			buttonslist.push(button.getAttribute("id"));
+			total += killsPlayer * n;
+			const react = imgHTML.getBoundingClientRect();
+			criarPontos(killsPlayer * n, react.x, react.y);
+			if (total > max) {
+				score.style.color = "#ff4654";
+				f_score.style.color = "#ff4654";
+			}
+			score.innerHTML = `${total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}K`;
+			f_score.innerHTML = `${total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}K`;
+			button.innerHTML += `${namePlayer} ${(killsPlayer * n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}K`;
+			button.style.backgroundColor = "#ff4654";
+			buttons.forEach((element) => {
+				element.disabled = true;
+			});
+
+			buttons_target.forEach((element) => {
+				element.disabled = true;
+			});
+			if (numberofplayers < 5) {
+				nameHTML.innerHTML = "???";
+				imgHTML.style.animation = "none";
+				imgHTML.offsetHeight;
+				imgHTML.style.animation = "changing 1.4s";
+			} else {
+				buttons_target.forEach((element) => {
+					element.disabled = false;
+				});
+				if (total > best_scr) {
+					localStorage.setItem("best_scr-{{mode}}", total);
+					best_obj.innerHTML = `${total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}K`;
+					best_title.innerHTML = "New Record:";
+					best_title.style.color = "#ff4654";
+				} else {
+					best_obj.innerHTML = `${best_scr.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}K`;
+					best_title.innerHTML = "Best Score:";
+				}
+
+				document.querySelector("#gameover h1").innerHTML = "LOST";
+				if (shared_score != "None") {
+					shared_score = parseInt(shared_score, 10);
+					document.querySelector("#gameover #header p").innerHTML = total > shared_score ? "Game lost, challenge won!" : "Game and challenge lost.";
+				} else {
+					document.querySelector("#gameover #header p").innerHTML = random_phrase(lost_phrases);
+				}
+				if (total > max) {
+					document.querySelector("#gameover h1").innerHTML = "WON";
+					if (shared_score != "None") {
+						shared_score = parseInt(shared_score, 10);
+						document.querySelector("#gameover #header p").innerHTML = total > shared_score ? "You won and beat your friend!" : "Game won, challenge lost.";
+					} else {
+						document.querySelector("#gameover #header p").innerHTML = random_phrase(win_phrases);
+					}
+					confetti({
+						particleCount: 150,
+						spread: 70,
+						origin: { y: 0.9 },
+					});
+				}
+				document.getElementById("gameover").style.display = "flex";
+			}
+		}
+	}
+
+	function criarPontos(valor, x, y) {
+		const pontos = document.createElement("div");
+		pontos.className = "pontos";
+		pontos.textContent = `+${valor} points`;
+
+		pontos.style.left = x + 140 + "px";
+		pontos.style.top = y + 30 + "px";
+
+		document.body.appendChild(pontos);
+
+		setTimeout(() => {
+			pontos.remove();
+		}, 1000);
+	}
+
+	document.getElementById("refresh").addEventListener("click", function () {
+		window.location.reload();
+	});
+
+	document.getElementById("share-btn").onclick = async () => {
+		const url = `https://mostkillteam.com/{{mode}}/${total}`;
+
+		if (navigator.share) {
+			await navigator.share({
+				title: "Most Kill Team",
+				text: `I scored ${score.textContent} in Most Kill Team ${mode} mode. Can you beat me?`,
+				url: url,
+			});
+		} else {
+			navigator.clipboard.writeText(`${text}\n${url}`);
+			alert("Link copied to clipboard!");
+		}
+	};
+
+	function close_shared_content() {
+		document.getElementById("shared_content").style.display = "none";
+	}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
+{% endblock content %}

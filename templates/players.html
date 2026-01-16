@@ -1,0 +1,103 @@
+{% extends "layout.html" %} {% block content %}
+<a id="title" href="{{ url_for('index') }}">Most Kill Team</a>
+<p id="subtitle">Analyse the stats of your favorite players</p>
+<section id="categories">
+	<h2 onclick="hide('career', this)">Career Stats (<span class="colexp">Collapse</span>)</h2>
+	<div id="career" class="players">
+		{% for p in data[0] %}
+		<div class="player">
+			<img src="https:{{p.Img}}" alt="{{p.Player}} Img" />
+			<div class="player_info">
+				<h2>{{ p.Player }}</h2>
+				<table>
+					<thead>
+						<tr>
+							<th>K</th>
+							<th>D</th>
+							<th>A</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>{{ p.Kills }}</td>
+							<td>{{ p.Deaths }}</td>
+							<td>{{ p.Assists }}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+	<h2 onclick="hide('masters', this)">Masters Stats (<span class="colexp">Collapse</span>)</h2>
+	<div id="masters" class="players">
+		{% for p in data[1] %}
+		<div class="player">
+			<img src="https:{{p.Img}}" alt="{{p.Player}} Img" />
+			<div class="player_info">
+				<h2>{{ p.Player }}</h2>
+				<table>
+					<thead>
+						<tr>
+							<th>K</th>
+							<th>D</th>
+							<th>A</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>{{ p.Kills }}</td>
+							<td>{{ p.Deaths }}</td>
+							<td>{{ p.Assists }}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+	<h2 onclick="hide('champions', this)">Champions Stats (<span class="colexp">Collapse</span>)</h2>
+	<div id="champions" class="players">
+		{% for p in data[2] %}
+		<div class="player">
+			<img src="https:{{p.Img}}" alt="{{p.Player}} Img" />
+			<div class="player_info">
+				<h2>{{ p.Player }}</h2>
+				<table>
+					<thead>
+						<tr>
+							<th>K</th>
+							<th>D</th>
+							<th>A</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>{{ p.Kills }}</td>
+							<td>{{ p.Deaths }}</td>
+							<td>{{ p.Assists }}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+</section>
+
+<script>
+	function hide(id, e) {
+		let obj = document.getElementById(id);
+		let display = window.getComputedStyle(obj).display;
+		let span = e.querySelector(".colexp");
+
+		if (obj.style.display === "none") {
+			obj.style.display = "grid";
+			span.innerHTML = "Collapse";
+		} else {
+			obj.style.display = "none";
+			span.innerHTML = "Expand";
+		}
+	}
+</script>
+{% endblock content %}

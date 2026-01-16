@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Virtual environment
+venv/
+.env/
+.env.*
+
+# Flask
+instance/
+*.log
+
+# Vercel
+.vercel/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Cache / build
+.cache/
+.pytest_cache/
+
+# Node (caso Vercel use)
+node_modules/
+
+# Misc
+*.sqlite3

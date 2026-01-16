@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Efeito + Pontos</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      height: 100vh;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* Texto flutuante */
+    .pontos {
+      position: absolute;
+      color: #2ecc71;
+      font-size: 24px;
+      font-weight: bold;
+      pointer-events: none;
+      animation: subirDesaparecer 1s ease-out forwards;
+    }
+
+    /* Animação */
+    @keyframes subirDesaparecer {
+      0% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-40px);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <button id="btn">Ganhar +3 pontos</button>
+
+  <script>
+    const botao = document.getElementById("btn");
+
+    botao.addEventListener("click", (e) => {
+      criarPontos(3, e.clientX, e.clientY);
+    });
+
+    function criarPontos(valor, x, y) {
+      const pontos = document.createElement("div");
+      pontos.className = "pontos";
+      pontos.textContent = `+${valor} pontos`;
+
+      pontos.style.left = x + "px";
+      pontos.style.top = y + "px";
+
+      document.body.appendChild(pontos);
+
+      // Remove após a animação
+      setTimeout(() => {
+        pontos.remove();
+      }, 1000);
+    }
+  </script>
+
+</body>
+</html>

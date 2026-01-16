@@ -1,0 +1,36 @@
+{% extends "layout.html" %} {% block content %}
+<a id="title" href="{{ url_for('index') }}" style="margin-bottom: 0">Most Kill Team</a>
+<p id="subtitle">Choose the game mode and pick players to reach the highest kill score.</p>
+<section id="home">
+	<div>
+		<a href="{{ url_for('game', mode='career') }}">
+			<picture>
+				<source srcset="{{ url_for('static', filename='banners/career.avif') }}" type="image/avif" />
+				<source srcset="{{ url_for('static', filename='banners/career.webp') }}" type="image/webp" />
+				<img src="{{ url_for('static', filename='banners/career.png') }}" width="411" height="582" loading="eager" fetchpriority="high" alt="Career mode banner" />
+			</picture>
+		</a>
+		<p>Based on career stats</p>
+	</div>
+	<div>
+		<a href="{{ url_for('game', mode='masters') }}">
+			<picture>
+				<source srcset="{{ url_for('static', filename='banners/masters.avif') }}" type="image/avif" />
+				<source srcset="{{ url_for('static', filename='banners/masters.webp') }}" type="image/webp" />
+				<img src="{{ url_for('static', filename='banners/masters.png') }}" width="411" height="582" loading="lazy" fetchpriority="low" alt="Masters mode banner" />
+			</picture>
+		</a>
+		<p>Based on Masters stats</p>
+	</div>
+	<div>
+		<a href="{{ url_for('game', mode='champions') }}">
+			<picture>
+				<source srcset="{{ url_for('static', filename='banners/champions.avif') }}" type="image/avif" />
+				<source srcset="{{ url_for('static', filename='banners/champions.webp') }}" type="image/webp" />
+				<img src="{{ url_for('static', filename='banners/champions.png') }}" width="411" height="582" loading="lazy" fetchpriority="low" alt="Champions mode banner" />
+			</picture>
+		</a>
+		<p>Based on Champions stats</p>
+	</div>
+</section>
+{% endblock content %}
